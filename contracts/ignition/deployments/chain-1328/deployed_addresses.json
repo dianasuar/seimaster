@@ -1,0 +1,5 @@
+{
+  "SmartAccountModule#SmartAccount": "0x9a30E211C7793585c57efe3cA43c5307788ecD94",
+  "PaymasterModule#SimplePaymaster": "0x53F5C37e3577D964c9fE38dAF482bf437D061e30",
+  "RewardTokenModule#RewardToken": "0x1B6F11eA748B58850EaE27173551F382C1C6dc2c"
+}

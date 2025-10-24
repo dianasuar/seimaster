@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-d7607c2aa8b6e8b981e04d7c35ab775c5fbb3446",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/Paymaster.sol": "project/contracts/Paymaster.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/Paymaster.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.19;\n\n/**\n * Minimal Paymaster (for ERC-4337)\n * - stores ETH for gas sponsorship\n * - only sponsors allowed target contracts\n * - can be extended for signature-based policies\n */\n\ninterface IEntryPoint {\n    function depositTo(address account) external payable;\n    function withdrawTo(address payable withdrawAddress, uint256 amount) external;\n}\n\ncontract SimplePaymaster {\n    address public owner;\n    IEntryPoint public entryPoint;\n\n    mapping(address => bool) public allowedTargets;\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Not owner\");\n        _;\n    }\n\n    constructor(address _owner, address _entryPoint) {\n        owner = _owner;\n        entryPoint = IEntryPoint(_entryPoint);\n    }\n\n    /// @notice deposit ETH into EntryPoint for sponsorship\n    function deposit() external payable onlyOwner {\n        entryPoint.depositTo{value: msg.value}(address(this));\n    }\n\n    /// @notice withdraw ETH from EntryPoint back to owner\n    function withdraw(uint256 amount) external onlyOwner {\n        entryPoint.withdrawTo(payable(owner), amount);\n    }\n\n    /// @notice add/remove whitelisted targets\n    function setAllowedTarget(address target, bool allowed) external onlyOwner {\n        allowedTargets[target] = allowed;\n    }\n\n    /// @notice check if a target is allowed\n    function isAllowed(address target) external view returns (bool) {\n        return allowedTargets[target];\n    }\n\n    receive() external payable {}\n}\n"
+      }
+    }
+  }
+}

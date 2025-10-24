@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-74223596e3607ff82dd5899f88783afc5b95f49c",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/SmartAccount.sol": "project/contracts/SmartAccount.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/SmartAccount.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.19;\n\n/**\n * Minimal ERC-4337 Smart Account\n * - Has an `execute()` function that EntryPoint calls\n * - Accepts ETH deposits\n */\n\ninterface IEntryPoint {\n    function depositTo(address account) external payable;\n}\n\ncontract SmartAccount {\n    address public owner;\n    IEntryPoint public entryPoint;\n\n    constructor(address _owner, address _entryPoint) {\n        owner = _owner;\n        entryPoint = IEntryPoint(_entryPoint);\n    }\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Not owner\");\n        _;\n    }\n\n    // basic call execution\n    function execute(address target, uint256 value, bytes calldata data)\n        external\n        onlyOwner\n        returns (bytes memory)\n    {\n        (bool success, bytes memory result) = target.call{value: value}(data);\n        require(success, \"call failed\");\n        return result;\n    }\n\n    // deposit ETH to EntryPoint for gas sponsorship\n    function depositToEntryPoint() external payable {\n        entryPoint.depositTo{value: msg.value}(address(this));\n    }\n\n    receive() external payable {}\n}\n"
+      }
+    }
+  }
+}
