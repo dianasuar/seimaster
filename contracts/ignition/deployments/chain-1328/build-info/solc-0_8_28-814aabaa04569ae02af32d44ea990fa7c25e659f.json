@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-814aabaa04569ae02af32d44ea990fa7c25e659f",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/aa/MinimalAccount.sol": "project/contracts/aa/MinimalAccount.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/aa/MinimalAccount.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.19;\n\ncontract MinimalAccount {\n    address public owner;\n    bool private _initialized;\n\n    event Executed(address indexed to, uint256 value, bytes data);\n    event OwnerChanged(address indexed newOwner);\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"not owner\");\n        _;\n    }\n\n    function initialize(address _owner) external {\n        require(!_initialized, \"initialized\");\n        require(_owner != address(0), \"bad owner\");\n        owner = _owner;\n        _initialized = true;\n        emit OwnerChanged(_owner);\n    }\n\n    /// @notice simple execute (EOA-like). Later we can swap to EntryPoint flow.\n    function execute(address to, uint256 value, bytes calldata data) external onlyOwner returns (bytes memory) {\n        (bool ok, bytes memory ret) = to.call{value: value}(data);\n        require(ok, \"exec failed\");\n        emit Executed(to, value, data);\n        return ret;\n    }\n\n    receive() external payable {}\n}\n"
+      }
+    }
+  }
+}
